@@ -13,7 +13,7 @@ namespace Bankomat
             bool program = true;
             startprogram(program);  
             int user = 0; 
-            for (int stage = 0; stage <= 5; stage++) // Tracks what stage of the bank we are on threw the variable stage.
+            for (int stage = 0; stage <= 2; stage++) // Tracks what stage of the bank we are on threw the variable stage.
             {
                 if (program == true && user != -1) // Checks so the user is allowed to be in the bank.
                 {
@@ -27,7 +27,7 @@ namespace Bankomat
                             user = Login(accounts);
                             break;
                         case 2:
-                            menue();
+                            int pick = menue();
                             break;
 
                           
@@ -70,7 +70,7 @@ namespace Bankomat
                 for (int attempt = 0; attempt < 3; attempt++) // Counts how many times the user has tried loggin in.
                 {
                     Console.Write("Enter your username:");
-                    var name = Console.ReadLine();
+                    var name = Console.ReadLine().ToLower();
                     Console.Write("Enter your pin-code:");
                     var pincode = Console.ReadLine();
 
@@ -102,10 +102,41 @@ namespace Bankomat
                 return -1;
             }
         }
-        public static void menue()
+        public static int menue() // Lists the menue and lets the user pick a option on the menue.
         {
-            string[] menue = { "\n1. See your accounts and balance", "2. Transfer between accounts", "3. Withdraw money", "4. Log out" };
+            string[] menue = { "\n1. See your accounts and balance", "2. Transfer between accounts", "3. Withdraw money", "4. Log out\n" };
             foreach(string list in menue) Console.WriteLine(list);
+            
+            for (int attempt = 0; attempt < 3; attempt++) // Counts how many times the user has tried to pick a option.
+            {
+                int pick = int.Parse(Console.ReadLine());
+                for (int count = 0; count < 1; count++) // Loop that checks the user input to see if it matches with the options on the menue.
+                {
+                    try
+                    {
+                        if (pick == 1 || pick == 2 || pick == 3 || pick == 4)
+                        {
+                            return pick;
+                        }
+                        else 
+                        {
+                            Console.WriteLine("Invalid pick!");
+                        }
+                    }
+                    catch
+                    {
+                        Console.WriteLine("Invalid pick!");
+                        return -1; // Anny extra exception is captured here.
+                    }
+                }
+                if (attempt == 2)
+                {
+                    Console.WriteLine("To many attempts!");
+                    return -1; 
+                }
+            }
+            return -1; // Anny extra exception is captured here.
+
         }
     }
 }
