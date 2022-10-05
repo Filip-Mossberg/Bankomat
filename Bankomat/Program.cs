@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 
 namespace Bankomat
 {
@@ -6,15 +7,22 @@ namespace Bankomat
     {
         static void Main(string[] args)
         {
+            bool program = true;
+            startprogram(program);
             Welcome();
             string[,] accounts = Accounts();
-            Login();
+            Login(accounts);
+        }
+        public static bool startprogram(bool program)
+        {
+            program = (program == true) ? true : false;
+            return program;
         }
         public static void Welcome()
         {
             String[] Welcome = { "Welcome to the bank!", "Welcome to your commercial bank!", "Welcome to your local bank!" };
             Random message = new Random();
-            int number = message.Next(0, 4);
+            int number = message.Next(0, 3);
             Console.WriteLine(Welcome[number]);
         }
         public static string[,] Accounts()
@@ -27,7 +35,7 @@ namespace Bankomat
             accounts[4, 0] = "Ulrika"; accounts[4, 1] = "2435";
             return accounts;
         }
-        public static void Login()
+        public static void Login(string[,] accounts)
         {
 
         }
