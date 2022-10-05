@@ -22,11 +22,15 @@ namespace Bankomat
                         case 0:
                             Welcome();
                             break;
-
                         case 1:
                             string[,] accounts = Accounts();
                             user = Login(accounts);
                             break;
+                        case 2:
+                            menue();
+                            break;
+
+                          
                     }
                 }
                 else // Throws the user out of the bank.
@@ -97,6 +101,11 @@ namespace Bankomat
                 Console.WriteLine(ex.Message);
                 return -1;
             }
+        }
+        public static void menue()
+        {
+            string[] menue = { "\n1. See your accounts and balance", "2. Transfer between accounts", "3. Withdraw money", "4. Log out" };
+            foreach(string list in menue) Console.WriteLine(list);
         }
     }
 }
