@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Net.Http;
 using System.Reflection.Metadata;
+using System.Text;
 
 namespace Bankomat
 {
@@ -12,7 +13,12 @@ namespace Bankomat
         {
             bool program = true;
             startprogram(program);  
-            int user = 0; 
+            int user = 0;
+
+            // First place is PayrollAccount, Second ShareAccount and last SavingsAccount.
+            double[] MoneyAccount0 = {403.25, 23400.83, 102420.63 }; // User 0
+            double[] MoneyAccount1 = { 1394.34, 43742.04, 74323.20 }; // User 1
+
             for (int stage = 0; stage <= 2; stage++) // Tracks what stage of the bank we are on threw the variable stage.
             {
                 if (program == true && user != -1) // Checks so the user is allowed to be in the bank.
@@ -28,6 +34,20 @@ namespace Bankomat
                             break;
                         case 2:
                             int pick = menue();
+                            switch (pick)
+                            {
+                                case 1:
+                                    switch (user)
+                                    {
+                                        case 0:
+                                            AccountCheck0(MoneyAccount0);
+                                            break;
+                                        case 1:
+                                            AccountCheck1(MoneyAccount1);
+                                            break; 
+                                    }
+                                    break;
+                            }
                             break;
 
                           
@@ -123,9 +143,9 @@ namespace Bankomat
                             Console.WriteLine("Invalid pick!");
                         }
                     }
-                    catch
+                    catch (Exception ex)
                     {
-                        Console.WriteLine("Invalid pick!");
+                        Console.WriteLine(ex.Message);
                         return -1; // Anny extra exception is captured here.
                     }
                 }
@@ -136,6 +156,32 @@ namespace Bankomat
                 }
             }
             return -1; // Anny extra exception is captured here.
+
+        }
+        private static void AccountCheck0(double[] MoneyAccount0)
+        {
+            StringBuilder user0 = new StringBuilder("Payroll account: ");
+            user0.AppendFormat("{0:C}", MoneyAccount0[0]);
+            Console.WriteLine(user0.ToString());
+            StringBuilder user00 = new StringBuilder("Share account: ");
+            user00.AppendFormat("{0:C}", MoneyAccount0[1]);
+            Console.WriteLine(user00.ToString());
+            StringBuilder user000 = new StringBuilder("Savings account: ");
+            user000.AppendFormat("{0:C}", MoneyAccount0[2]);
+            Console.WriteLine(user000.ToString());
+            
+        }
+        private static void AccountCheck1(double[] MoneyAccount1)
+        {
+            StringBuilder user0 = new StringBuilder("Payroll account: ");
+            user0.AppendFormat("{0:C}", MoneyAccount1[0]);
+            Console.WriteLine(user0.ToString());
+            StringBuilder user00 = new StringBuilder("Share account: ");
+            user00.AppendFormat("{0:C}", MoneyAccount1[1]);
+            Console.WriteLine(user00.ToString());
+            StringBuilder user000 = new StringBuilder("Savings account: ");
+            user000.AppendFormat("{0:C}", MoneyAccount1[2]);
+            Console.WriteLine(user000.ToString());
 
         }
     }
