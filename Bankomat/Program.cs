@@ -11,17 +11,18 @@ namespace Bankomat
     {
         static void Main(string[] args)
         {
-            bool program = true;
-            startprogram(program);  
             int user = 0;
 
-            // First place is PayrollAccount, Second ShareAccount and last SavingsAccount.
-            double[] MoneyAccount0 = {403.25, 23400.83, 102420.63 }; // User 0
-            double[] MoneyAccount1 = { 1394.34, 43742.04, 74323.20 }; // User 1
+            // First place is a number of how many accounts you have. The second is PayrollAccount, third ShareAccount and last SavingsAccount. 
+            double[] MoneyAccount0 = { 3, 403.25, 23400.83, 102420.63 }; // User 0
+            double[] MoneyAccount1 = { 2, 1394.34, 43742.04 }; // User 1
+            double[] MoneyAccount2 = { 1, 3493.52 };  // User 2
+            double[] MoneyAccount3 = { 3, 1904.78, 18304.94, 74323.20 }; // User 3
+            double[] MoneyAccount4 = { 2, 1452.86, 173744.14 }; // User 4
 
             for (int stage = 0; stage <= 2; stage++) // Tracks what stage of the bank we are on threw the variable stage.
             {
-                if (program == true && user != -1) // Checks so the user is allowed to be in the bank.
+                if (stage != -1 && user != -2) // Checks so the user is allowed to be in the bank.
                 {
                     switch (stage)
                     {
@@ -33,24 +34,46 @@ namespace Bankomat
                             user = Login(accounts);
                             break;
                         case 2:
-                            int pick = menue();
+                            int pick = menu();
                             switch (pick)
                             {
                                 case 1:
-                                    switch (user)
+                                    for (int count = 0; count <= 4; count++)
                                     {
-                                        case 0:
-                                            AccountCheck0(MoneyAccount0);
+                                        if (user == 0)
+                                        {
+                                            double[] MoneyAccount = MoneyAccount0;
+                                            stage = AccountCheck0(MoneyAccount, user);
                                             break;
-                                        case 1:
-                                            AccountCheck1(MoneyAccount1);
-                                            break; 
+                                        }
+                                        else if (user == 1)
+                                        {
+                                            double[] MoneyAccount = MoneyAccount1;
+                                            stage = AccountCheck0(MoneyAccount, user);
+                                            break;
+                                        }
+                                        else if (user == 2)
+                                        {
+                                            double[] MoneyAccount = MoneyAccount2;
+                                            stage = AccountCheck0(MoneyAccount, user);
+                                            break;
+                                        }
+                                        else if (user == 3)
+                                        {
+                                            double[] MoneyAccount = MoneyAccount3;
+                                            stage = AccountCheck0(MoneyAccount, user);
+                                            break;
+                                        }
+                                        else if (user == 4)
+                                        {
+                                            double[] MoneyAccount = MoneyAccount4;
+                                            stage = AccountCheck0(MoneyAccount, user);
+                                            break;
+                                        }
                                     }
                                     break;
                             }
                             break;
-
-                          
                     }
                 }
                 else // Throws the user out of the bank.
@@ -58,11 +81,6 @@ namespace Bankomat
                     break;
                 }
             }
-        }
-        public static bool startprogram(bool program) // Can maybe remove this whole startprogram method, but will look into that later
-        {
-            program = (program == true) ? true : false;
-            return program;
         }
         public static void Welcome() // Writes out a random welome message.
         {
@@ -111,32 +129,32 @@ namespace Bankomat
                     if (attempt == 2 && check == false) // If the user has failed to login on 3 attempts then a value of -1 is returned. 
                     {
                         Console.WriteLine("To many attempts!");
-                        return -1;
+                        return -2; // Have to return -2 because the for loop adds 1 value.
                     }
                 }
-                return -1; // Anny extra exception is captured here.
+                return -2; // Anny extra exception is captured here.
             }
-            catch (Exception ex) // Anny extra exception is captured here.
+            catch  (Exception ex)
             {
                 Console.WriteLine(ex.Message);
-                return -1;
+                return -2; // Anny extra exception is captured here.
             }
         }
-        public static int menue() // Lists the menue and lets the user pick a option on the menue.
+        public static int menu() // Lists the menue and lets the user pick a option on the menue.
         {
             string[] menue = { "\n1. See your accounts and balance", "2. Transfer between accounts", "3. Withdraw money", "4. Log out\n" };
             foreach(string list in menue) Console.WriteLine(list);
             
             for (int attempt = 0; attempt < 3; attempt++) // Counts how many times the user has tried to pick a option.
             {
-                int pick = int.Parse(Console.ReadLine());
+                string pick = Console.ReadLine();
                 for (int count = 0; count < 1; count++) // Loop that checks the user input to see if it matches with the options on the menue.
                 {
                     try
                     {
-                        if (pick == 1 || pick == 2 || pick == 3 || pick == 4)
+                        if (pick == "1" || pick == "2" || pick == "3" || pick == "4")
                         {
-                            return pick;
+                            return int.Parse(pick);
                         }
                         else 
                         {
@@ -146,42 +164,75 @@ namespace Bankomat
                     catch (Exception ex)
                     {
                         Console.WriteLine(ex.Message);
-                        return -1; // Anny extra exception is captured here.
+                        return -2; // Anny extra exception is captured here.
                     }
                 }
                 if (attempt == 2)
                 {
                     Console.WriteLine("To many attempts!");
-                    return -1; 
+                    return -2; 
                 }
             }
             return -1; // Anny extra exception is captured here.
 
         }
-        private static void AccountCheck0(double[] MoneyAccount0)
+        private static int AccountCheck0(double[] MoneyAccount, int user) // Writes out a specific users accounts depending on how many account they have.
         {
-            StringBuilder user0 = new StringBuilder("Payroll account: ");
-            user0.AppendFormat("{0:C}", MoneyAccount0[0]);
-            Console.WriteLine(user0.ToString());
-            StringBuilder user00 = new StringBuilder("Share account: ");
-            user00.AppendFormat("{0:C}", MoneyAccount0[1]);
-            Console.WriteLine(user00.ToString());
-            StringBuilder user000 = new StringBuilder("Savings account: ");
-            user000.AppendFormat("{0:C}", MoneyAccount0[2]);
-            Console.WriteLine(user000.ToString());
-            
-        }
-        private static void AccountCheck1(double[] MoneyAccount1)
-        {
-            StringBuilder user0 = new StringBuilder("Payroll account: ");
-            user0.AppendFormat("{0:C}", MoneyAccount1[0]);
-            Console.WriteLine(user0.ToString());
-            StringBuilder user00 = new StringBuilder("Share account: ");
-            user00.AppendFormat("{0:C}", MoneyAccount1[1]);
-            Console.WriteLine(user00.ToString());
-            StringBuilder user000 = new StringBuilder("Savings account: ");
-            user000.AppendFormat("{0:C}", MoneyAccount1[2]);
-            Console.WriteLine(user000.ToString());
+            if (MoneyAccount[0] == 3) // User with 3 accounts.
+            {
+                StringBuilder user0 = new StringBuilder("Payroll account: ");
+                user0.AppendFormat("{0:C}", MoneyAccount[1]);
+                Console.WriteLine(user0.ToString());
+                StringBuilder user00 = new StringBuilder("Share account: ");
+                user00.AppendFormat("{0:C}", MoneyAccount[2]);
+                Console.WriteLine(user00.ToString());
+                StringBuilder user000 = new StringBuilder("Savings account: ");
+                user000.AppendFormat("{0:C}", MoneyAccount[3]);
+                Console.WriteLine(user000.ToString());
+            }
+            if (MoneyAccount[0] == 2) // User with 2 accounts.
+            {
+                StringBuilder user0 = new StringBuilder("Payroll account: ");
+                user0.AppendFormat("{0:C}", MoneyAccount[1]);
+                Console.WriteLine(user0.ToString());
+                StringBuilder user00 = new StringBuilder("Share account: ");
+                user00.AppendFormat("{0:C}", MoneyAccount[2]);
+                Console.WriteLine(user00.ToString());
+            }
+            if (MoneyAccount[0] == 1) // User with 1 account.
+            {
+                StringBuilder user0 = new StringBuilder("Payroll account: ");
+                user0.AppendFormat("{0:C}", MoneyAccount[1]);
+                Console.WriteLine(user0.ToString());
+            }
+
+            Console.Write("\nPress Enter To Return To Menue:"); 
+            for (int attempt = 0; attempt < 3; attempt++) // Loop taht returns the user to the menue if enter is pressed, if wrong input is typed more then 3 times the user is thrown back out of the bank.
+            {
+                try
+                {
+                    if (Console.ReadLine() == "")
+                    {
+                        int stage = 1;
+                        return stage;
+                    }
+                    else
+                    {
+                        Console.WriteLine("Invalid Pick!");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                    return -2; // Anny extra exception is captured here.
+                }
+                if (attempt == 2)
+                {
+                    Console.WriteLine("To many attempts!");
+                    return -2;
+                }
+            }
+            return -2; // Anny extra exception is captured here.
 
         }
     }
