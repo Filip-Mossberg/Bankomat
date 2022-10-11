@@ -3,6 +3,7 @@ using System;
 using System.ComponentModel;
 using System.Drawing;
 using System.Net.Http;
+using System.Net.NetworkInformation;
 using System.Reflection.Metadata;
 using System.Text;
 
@@ -13,7 +14,7 @@ namespace Bankomat
         static void Main(string[] args)
         {
             int user = 0;
-
+ 
             // First place is a number of how many accounts you have. The second is PayrollAccount, third ShareAccount and last SavingsAccount. 
             double[][] MoneyAccount = new double[5][];
             MoneyAccount[0] = new double[3] { 403.25, 23400.83, 102420.63 };
@@ -21,6 +22,9 @@ namespace Bankomat
             MoneyAccount[2] = new double[1] { 3493.52 };
             MoneyAccount[3] = new double[3] { 1904.78, 18304.94, 74323.20 };
             MoneyAccount[4] = new double[2] { 1452.86, 173744.14 };
+
+            // Array that saves user input that is being used in different methods.
+            string[] PickSaver = { "", "", "" };
 
             for (int stage = 0; stage <= 2; stage++) // Tracks what stage of the bank we are on threw the variable stage.
             {
@@ -36,24 +40,41 @@ namespace Bankomat
                             user = Login(accounts);
                             break;
                         case 2:
-                            int pick = menu(user);
+                            int pick = Menu(user);
                             switch (pick)
                             {
                                 case 1:
-                                            AccountCheck(MoneyAccount[user]);
-                                            stage = Return();
+                                    AccountCheck(MoneyAccount[user]);
+                                    stage = Return();
                                     break;
                                 case 2:
-                                            AccountCheck(MoneyAccount[user]);
-                                            stage = Transfer(MoneyAccount[user], user);
-                                            if (stage == -2) { break; }
-                                            else { AccountCheck(MoneyAccount[user]); stage = Return(); }
+                                    AccountCheck(MoneyAccount[user]);
+                                    (stage, PickSaver[0]) = From(MoneyAccount[user], 1);
+                                    if (stage == -2) { break; }
+                                    (stage, PickSaver[1]) = To(MoneyAccount[user], PickSaver);
+                                    if (stage == -2) { break; }
+                                    (stage, PickSaver[2]) = Amount(MoneyAccount[user], PickSaver, 1);
+                                    if (stage == -2) { break; }
+                                    Message(MoneyAccount[user], PickSaver, 1);
+                                    (stage) = PinCode(user);
+                                    if (stage == -2) { break; }
+                                    UpdateValues(MoneyAccount[user], PickSaver, 1);
+                                    AccountCheck(MoneyAccount[user]); stage = Return(); 
                                     break;
                                 case 3:
-                                            AccountCheck(MoneyAccount[user]);
-                                            stage = Withdraw(MoneyAccount[user], user);
-                                            if (stage == -2) { break; }
-                                            else { AccountCheck(MoneyAccount[user]); stage = Return(); }
+                                    AccountCheck(MoneyAccount[user]);
+                                    (stage, PickSaver[0]) = From(MoneyAccount[user], 2);
+                                    if (stage == -2) { break; }
+                                    (stage, PickSaver[2]) = Amount(MoneyAccount[user], PickSaver, 2);
+                                    if (stage == -2) { break; }
+                                    Message(MoneyAccount[user], PickSaver, 2);
+                                    (stage) = PinCode(user);
+                                    if (stage == -2) { break; }
+                                    UpdateValues(MoneyAccount[user], PickSaver, 2);
+                                    AccountCheck(MoneyAccount[user]); stage = Return();
+                                    break;
+                                case 4:
+                                    stage = -2;
                                     break;
                             }
                             break;
@@ -124,7 +145,7 @@ namespace Bankomat
                 return -2; // Anny extra exception is captured here.
             }
         }
-        public static int menu(int user) // Lists the menu and lets the user pick a option on the menue.
+        public static int Menu(int user) // Lists the menu and lets the user pick a option on the menue.
         {
             for (int WelcomeMessage = 0; WelcomeMessage < 1; WelcomeMessage++)
             {
@@ -164,7 +185,6 @@ namespace Bankomat
                         }
                         else 
                         {
-                            Console.Clear();
                             Console.WriteLine("Invalid pick!\n");
                         }
                     }
@@ -244,287 +264,266 @@ namespace Bankomat
             }
             return -2; // Anny extra exception is captured here.
         }
-        public static int Transfer(double[] MoneyAccount, int user)
+        public static (int, string) From(double[] MoneyAccount, int Decider)
         {
-            try
+            int From1 = 0;
+            int error = 0;
+            int error2 = 0;
+            string[] PickSaver = { "" };
+
+            for (int attempt = 0; attempt <= 2; attempt++)
             {
-                int From = 0;
-                int To = 0;
-                double amount = Math.Round(0.00, 2);
-                int break1 = 0;
-                
-                for (int attempt = 0; attempt <= 2; attempt++)
+                try
                 {
-                    Console.Write("\nTransfer From:");
-                    From = int.Parse(Console.ReadLine());
-                    if (From > 0 && From <= MoneyAccount.Length)
+                    if (Decider == 1) { Console.Write("\nTransfer From:"); }
+                    else { Console.Write("\nWithdraw From:"); }
+                    From1 = int.Parse(Console.ReadLine());
+                    error2 = 0;
+                    if (error == 3)
                     {
-                        break;
-                    }
-                    else if (attempt == 2)
-                    {
-                        Console.WriteLine("To many attempts!");
-                        return -2;
+                        return (-2, PickSaver[0]);
                     }
                 }
-                for (int attempt = 0; attempt <= 2; attempt++)
+                catch
+                {
+                    if (attempt != 2)
+                    {
+                        Console.WriteLine("Invalid Account!");
+                        error++;
+                        error2++;
+                    }
+                }
+                if (From1 > 0 && From1 <= MoneyAccount.Length)
+                {
+                    PickSaver[0] = From1.ToString();
+                    return (0, PickSaver[0]);
+                }
+                else if (attempt == 2)
+                {
+                    Console.WriteLine("To many attempts!");
+                    return (-2, PickSaver[0]);
+                }
+                else
+                {
+                    if (error2 < 1)
+                    {
+                        Console.WriteLine("Invalid Account!");
+                    }
+                }
+            }
+            return (-2, PickSaver[0]);
+        }
+        public static (int, string) To(double[] MoneyAccount, string[] PickSaver)
+        {
+            int From = int.Parse(PickSaver[0]);
+            int To = 0;
+            int error = 0;
+            int error2 = 0;
+
+            for (int attempt = 0; attempt <= 2; attempt++)
+            {
+                try
                 {
                     Console.Write("\nTransfer To:");
-                    To = int.Parse(Console.ReadLine()); 
-                    if (To > 0 && To <= MoneyAccount.Length && To != From)
+                    To = int.Parse(Console.ReadLine());
+                    error2 = 0;
+                    if (error == 3)
                     {
-                        break;
-                    }
-                    else if (attempt == 2)
-                    {
-                        Console.WriteLine("To many attempts!");
-                        return -2;
+                        return (-2, PickSaver[1]);
                     }
                 }
-                for (int attempt = 0; attempt <= 2; attempt++)
+                catch
                 {
-                    try
+                    if (attempt != 2)
                     {
-                        Console.Write("\nAmount: ");
-                        amount = Math.Round(double.Parse(Console.ReadLine()), 2);
+                        Console.WriteLine("Invalid Account!");
+                        error++;
+                        error2++;
                     }
-                    catch
+                }
+                if (To > 0 && To <= MoneyAccount.Length && To != From)
+                {
+                    PickSaver[1] = To.ToString();
+                    return (0, PickSaver[1]);
+                }
+                else if (attempt == 2)
+                {
+                    Console.WriteLine("To many attempts!");
+                    return (-2, PickSaver[1]);
+                }
+                else
+                {
+                    if (error2 < 1)
+                    {
+                        Console.WriteLine("Invalid Account!");
+                    }
+                }
+            }
+            return (-2, PickSaver[1]);
+        }
+        public static (int, string) Amount(double[] MoneyAccount, string[] PickSaver, int Decider)
+        {
+            int From = int.Parse(PickSaver[0]);
+            if (Decider == 1) { int To = int.Parse(PickSaver[1]); }
+            double amount = Math.Round(0.00, 2);
+            int error = 0;
+            int error2 = 0;
+
+            for (int attempt = 0; attempt <= 2; attempt++)
+            {
+                try
+                {
+                    Console.Write("\nAmount: ");
+                    amount = Math.Round(double.Parse(Console.ReadLine()), 2);
+                    error2 = 0;
+                    if (error == 3)
+                    {
+                        return (-2, PickSaver[2]);
+                    }
+                }
+                catch
+                {
+                    if (attempt != 2)
                     {
                         Console.WriteLine("Invalid Amount!");
-                    }
-
-                    switch (From)
-                    {
-                        case 1:
-                            if (amount < MoneyAccount[0] && amount > 0)
-                            {
-                                break1 = 1;
-                                break;
-                            }
-                            break;
-                        case 2:
-                            if (amount < MoneyAccount[1]  && amount > 0)
-                            {
-                                break1 = 1;
-                                break;
-                            }
-                            break;
-                        case 3:
-                            if ( amount < MoneyAccount[2] && amount > 0)
-                            {
-                                break1 = 1;
-                                break;
-                            }
-                            break;
-                    }
-                    if (break1 == 1)
-                    {
-                        break;
-                    }
-                    else if (attempt == 2)
-                    {
-                        Console.WriteLine("To many attempts!");
-                        return -2;
+                        error++;
+                        error2++;
                     }
 
                 }
-                
+                switch (From)
+                {
+                    case 1:
+                        if (amount < MoneyAccount[0] && amount > 0)
+                        {
+                            PickSaver[2] = amount.ToString();
+                            return (2, PickSaver[2]);
+                        }
+                        break;
+                    case 2:
+                        if (amount < MoneyAccount[1] && amount > 0)
+                        {
+                            PickSaver[2] = amount.ToString();
+                            return (2, PickSaver[2]);
+                        }
+                        break;
+                    case 3:
+                        if (amount < MoneyAccount[2] && amount > 0)
+                        {
+                            PickSaver[2] = amount.ToString();
+                            return (2, PickSaver[2]);
+                        }
+                        break;
+                }
+                if (error2 < 1)
+                {
+                    Console.WriteLine("Invalid Amount!");
+                }
+                else if (attempt == 2)
+                {
+                    Console.WriteLine("To many attempts!");
+                    return (-2, PickSaver[2]);
+                }
+            }
+            return (-2, PickSaver[2]);
+        }
+
+        public static void Message(double[] MoneyAccount, string[] PickSaver, int Decider)
+        {
+            int From = int.Parse(PickSaver[0]);
+            double amount = double.Parse(PickSaver[2]);
+
+            if (Decider == 1)
+            {
+                int To = int.Parse(PickSaver[1]);
                 StringBuilder user0 = new StringBuilder("You Will Transfer ");
                 user0.AppendFormat("{0:C}", amount);
                 user0.AppendFormat(" To Account {0}", To);
                 Console.WriteLine(user0.ToString());
-
-                int pin = 0;
-                for (int attempt = 0; attempt <= 2; attempt++)
-                {
-                    try
-                    {
-                        Console.WriteLine("Confirm By Entering Your Pin-Code:");
-                        pin = int.Parse(Console.ReadLine());
-                    }
-                    catch
-                    {
-                        Console.WriteLine("Invalid Format!");
-                    }
-
-                    switch (user)
-                    {
-                        case 0:
-                            if (pin == 2124) { Console.Clear(); Console.WriteLine("Success!"); break1 = 2; break; }
-                            break;
-                        case 1:
-                            if (pin == 4452) { Console.Clear(); Console.WriteLine("Success!"); break1 = 2; break; }
-                            break1 = 2;
-                            break;
-                        case 2:
-                            if (pin == 9832) { Console.Clear(); Console.WriteLine("Success!"); break1 = 2; break; }
-                            break1 = 2;
-                            break;
-                        case 3:
-                            if (pin == 2532) { Console.Clear(); Console.WriteLine("Success!"); break1 = 2; break; }
-                            break1 = 2;
-                            break;
-                        case 4: 
-                            if (pin == 2435) { Console.Clear(); Console.WriteLine("Success!"); break1 = 2; break; }
-                            break1 = 2;
-                            break;
-                    }
-                    if (break1 == 2)
-                    {
-                        break;
-                    }
-                    else if (attempt == 2)
-                    {
-                        Console.WriteLine("To many attempts!");
-                        return -2;
-                    }
-                }
-                MoneyAccount[From - 1] = MoneyAccount[From - 1] - amount;
-                Console.WriteLine(MoneyAccount[From - 1]);
-                MoneyAccount[To - 1] = MoneyAccount[To - 1] + amount;
-                Console.WriteLine(MoneyAccount[To - 1]);
-                return 1;
             }
-            catch (Exception ex)
+            else
             {
-                Console.WriteLine(ex.Message);
-                return -2; // Anny extra exception is captured here.
-            }
-        }
-        public static int Withdraw(double[] MoneyAccount, int user)
-        {
-            int From = 0;
-            double amount = Math.Round(0.00, 2);
-            int break1 = 0; ;
-
-            try
-            {
-                int error = 0;
-                for (int attempt = 0; attempt <= 2; attempt++)
-                {
-                    Console.Write("\nWithdraw From:");
-                    From = int.Parse(Console.ReadLine());
-
-                    if (From > 0 && From <= MoneyAccount.Length)
-                    {
-                        break;
-                    }
-                    else if (attempt == 2)
-                    {
-                        Console.WriteLine("To many attempts!");
-                        return -2;
-                    }
-                }
-                for (int attempt = 0; attempt <= 2; attempt++)
-                {
-                    try
-                    {
-                        Console.Write("\nAmount: ");
-                        amount = Math.Round(double.Parse(Console.ReadLine()), 2);
-                        error = 0;
-                    }
-                    catch
-                    {
-                        Console.WriteLine("Invalid Amount!");
-                        error++;
-                        
-                    }
-
-                    switch (From)
-                    {
-                        case 1:
-                            if (amount < MoneyAccount[0] && amount > 0)
-                            {
-                                break1 = 1;
-                                break;
-                            }
-                            else { if (error < 1) { Console.WriteLine("Invalid Amount!"); } }
-                            break;
-                        case 2:
-                            if (amount < MoneyAccount[1] && amount > 0)
-                            {
-                                break1 = 1;
-                                break;
-                            }
-                            else { if (error < 1) { Console.WriteLine("Invalid Amount!"); } }
-                            break;
-                        case 3:
-                            if (amount < MoneyAccount[2] && amount > 0)
-                            {
-                                break1 = 1;
-                                break;
-                            }
-                            else { if (error < 1) { Console.WriteLine("Invalid Amount!"); } }
-                            break;
-                    }
-                    if (break1 == 1)
-                    {
-                        break;
-                    }
-                    else if (attempt == 2)
-                    {
-                        Console.WriteLine("To many attempts!");
-                        return -2;
-                    }
-                }
                 StringBuilder user0 = new StringBuilder("You Will Withdraw ");
                 user0.AppendFormat("{0:C}", amount);
                 user0.AppendFormat(" From Account {0}", From);
                 Console.WriteLine(user0.ToString());
-
+            }
+        }
+        public static int PinCode(int user)
+        {
+            for (int attempt = 0; attempt <= 2; attempt++)
+            {
                 int pin = 0;
-                for (int attempt = 0; attempt <= 2; attempt++)
-                {
-                    try
-                    {
-                        Console.WriteLine("Confirm By Entering Your Pin-Code:");
-                        pin = int.Parse(Console.ReadLine());
-                    }
-                    catch
-                    {
-                        Console.WriteLine("Invalid Format!");
-                    }
+                int error = 0;
+                int error2 = 0;
 
-                    switch (user)
+                try
+                {
+                    Console.WriteLine("Confirm By Entering Your Pin-Code:");
+                    pin = int.Parse(Console.ReadLine());
+                    error2 = 0;
+                    if (error == 3)
                     {
-                        case 0:
-                            if (pin == 2124) { Console.Clear(); Console.WriteLine("Success!"); break1 = 2; break; }
-                            break;
-                        case 1:
-                            if (pin == 4452) { Console.Clear(); Console.WriteLine("Success!"); break1 = 2; break; }
-                            break1 = 2;
-                            break;
-                        case 2:
-                            if (pin == 9832) { Console.Clear(); Console.WriteLine("Success!"); break1 = 2; break; }
-                            break1 = 2;
-                            break;
-                        case 3:
-                            if (pin == 2532) { Console.Clear(); Console.WriteLine("Success!"); break1 = 2; break; }
-                            break1 = 2;
-                            break;
-                        case 4:
-                            if (pin == 2435) { Console.Clear(); Console.WriteLine("Success!"); break1 = 2; break; }
-                            break1 = 2;
-                            break;
-                    }
-                    if (break1 == 2)
-                    {
-                        break;
-                    }
-                    else if (attempt == 2)
-                    {
-                        Console.WriteLine("To many attempts!");
                         return -2;
                     }
                 }
+                catch
+                {
+                    if (attempt != 2)
+                    {
+                        Console.WriteLine("Invalid Format!");
+                        error++;
+                        error2++;
+                    }
+                }
+
+                switch (user)
+                {
+                    case 0:
+                        if (pin == 2124) { Console.Clear(); Console.WriteLine("Success!"); return 2; }
+                        break;
+                    case 1:
+                        if (pin == 4452) { Console.Clear(); Console.WriteLine("Success!"); return 2; }
+                        break;
+                    case 2:
+                        if (pin == 9832) { Console.Clear(); Console.WriteLine("Success!"); return 2; }
+                        break;
+                    case 3:
+                        if (pin == 2532) { Console.Clear(); Console.WriteLine("Success!"); return 2; }
+                        break;
+                    case 4:
+                        if (pin == 2435) { Console.Clear(); Console.WriteLine("Success!"); return 2; }
+                        break;
+                }
+                if (error2 < 1)
+                {
+                    Console.WriteLine("Invalid Account!");
+                }
+                else if (attempt == 2)
+                {
+                    Console.WriteLine("To many attempts!");
+                    return -2;
+                }
+            }
+            return -2;
+        }
+        public static void UpdateValues(double[] MoneyAccount, string[] PickSaver, int Decider)
+        {
+            int From = int.Parse(PickSaver[0]);
+            double amount = double.Parse(PickSaver[2]);
+
+            if (Decider == 1)
+            {
+                int To = int.Parse(PickSaver[1]);
                 MoneyAccount[From - 1] = MoneyAccount[From - 1] - amount;
                 Console.WriteLine(MoneyAccount[From - 1]);
-                return 1;
+                MoneyAccount[To - 1] = MoneyAccount[To - 1] + amount;
+                Console.WriteLine(MoneyAccount[To - 1]);
             }
-            catch (Exception ex)
+            else
             {
-                Console.WriteLine(ex.Message);
-                return -2; // Anny extra exception is captured here.
+                MoneyAccount[From - 1] = MoneyAccount[From - 1] - amount;
+                Console.WriteLine(MoneyAccount[From - 1]);
             }
         }
     }
