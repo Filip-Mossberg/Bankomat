@@ -1,10 +1,4 @@
-﻿using Microsoft.VisualBasic;
-using System;
-using System.ComponentModel;
-using System.Drawing;
-using System.Net.Http;
-using System.Net.NetworkInformation;
-using System.Reflection.Metadata;
+﻿using System;
 using System.Text;
 
 namespace Bankomat
@@ -15,7 +9,7 @@ namespace Bankomat
         {
             int user = 0;
  
-            // First place is a number of how many accounts you have. The second is PayrollAccount, third ShareAccount and last SavingsAccount. 
+            // Jagged Array with all the user money accounts. 
             double[][] MoneyAccount = new double[5][];
             MoneyAccount[0] = new double[3] { 403.25, 23400.83, 102420.63 };
             MoneyAccount[1] = new double[2] { 1394.34, 43742.04 };
@@ -74,7 +68,8 @@ namespace Bankomat
                                     AccountCheck(MoneyAccount[user]); stage = Return();
                                     break;
                                 case 4:
-                                    stage = -2;
+                                    Console.Clear();
+                                    stage = -1;
                                     break;
                             }
                             break;
@@ -88,7 +83,7 @@ namespace Bankomat
         }
         public static void Welcome() // Writes out a random welome message.
         {
-            String[] Welcome = { "Welcome to the bank!\n", "Welcome to your commercial bank!\n", "Welcome to your local bank!\n" };
+            String[] Welcome = { "Välkommen till banken!\n", "Välkommen till din affärsbank!\n", "Välkommen till din lokala bank!\n" };
             Random message = new Random();
             int number = message.Next(0, 3);
             Console.WriteLine(Welcome[number]);
@@ -111,29 +106,29 @@ namespace Bankomat
                 int count = 0;
                 for (int attempt = 0; attempt < 3; attempt++) // Counts how many times the user has tried loggin in.
                 {
-                    Console.Write("Enter your username:");
+                    Console.Write("Ange användarnamn:");
                     var name = Console.ReadLine().ToLower();
-                    Console.Write("Enter your pin-code:");
+                    Console.Write("Ange din pinkod:");
                     var pincode = Console.ReadLine();
 
                     for (count = 0; count <= 4; count++) // Loop that goes threw all the accounts in the account array to try and find a match with the user input.
                     {
                         check = (name == accounts[count, 0] && pincode == accounts[count, 1]) ? true : false;
-                        if (check == true) // If a match is found then it returns the user position value in the array.
+                        if (check == true) 
                         {
                             int user = count;
                             return count;
                         }
-                        else if (count == 4 && check == false) //If a match is not found the program tells the user that the input was wrong.
+                        else if (count == 4 && check == false)
                         {
                             Console.Clear();
-                            Console.WriteLine("Wrong username or pin-code!\n");
+                            Console.WriteLine("Fel användarnamn eller pinkod!\n");
                             
                         }
                     }
                     if (attempt == 2 && check == false) // If the user has failed to login on 3 attempts then a value of -1 is returned. 
                     {
-                        Console.WriteLine("To many attempts!");
+                        Console.WriteLine("För många försök!");
                         return -2; // Have to return -2 because the for loop adds 1 value.
                     }
                 }
@@ -145,7 +140,7 @@ namespace Bankomat
                 return -2; // Anny extra exception is captured here.
             }
         }
-        public static int Menu(int user) // Lists the menu and lets the user pick a option on the menue.
+        public static int Menu(int user) // Lists the menu and lets the user pick a option from the menue.
         {
             for (int WelcomeMessage = 0; WelcomeMessage < 1; WelcomeMessage++)
             {
@@ -153,23 +148,23 @@ namespace Bankomat
                 switch (user)
                 {
                     case 0:
-                        Console.WriteLine("Welcome Filip!");
+                        Console.WriteLine("Välkommen Filip!");
                         break;
                     case 1:
-                        Console.WriteLine("Welcome Noah!");
+                        Console.WriteLine("Välkommen Noah!");
                         break;
                     case 2:
-                        Console.WriteLine("Welcome Bella!");
+                        Console.WriteLine("Välkommen Bella!");
                         break;
                     case 3:
-                        Console.WriteLine("Welcome Joakim!");
+                        Console.WriteLine("Välkommen Joakim!");
                         break;
                     case 4:
-                        Console.WriteLine("Welcome Ulrika!");
+                        Console.WriteLine("Välkommen Ulrika!");
                         break;
                 }
             }
-            string[] menue = { "\n1. See your accounts and balance", "2. Transfer between accounts", "3. Withdraw money", "4. Log out\n" };
+            string[] menue = { "\n1. Se dina konton och saldo", "2. Överföring mellan konto", "3. Ta ut pengar", "4. Logga ut\n" };
             foreach(string list in menue) Console.WriteLine(list);
             
             for (int attempt = 0; attempt < 3; attempt++) // Counts how many times the user has tried to pick a option.
@@ -185,7 +180,7 @@ namespace Bankomat
                         }
                         else 
                         {
-                            Console.WriteLine("Invalid pick!\n");
+                            Console.WriteLine("Ogilltigt val!\n");
                         }
                     }
                     catch (Exception ex)
@@ -196,40 +191,40 @@ namespace Bankomat
                 }
                 if (attempt == 2)
                 {
-                    Console.WriteLine("To many attempts!");
+                    Console.WriteLine("För många försök!");
                     return -2; 
                 }
             }
             return -2; // Anny extra exception is captured here.
 
         }
-        private static void AccountCheck(double[] MoneyAccount) // Writes out a specific users accounts depending on how many account they have.
+        private static void AccountCheck(double[] MoneyAccount) // Writes out a specific users accounts depending on how many accounts they have.
         {
             Console.Clear();
             if (MoneyAccount.Length == 1) // If the user has 1 account.
             {
-                StringBuilder user0 = new StringBuilder("[1] Payroll account: ");
+                StringBuilder user0 = new StringBuilder("[1] Lönekonto: ");
                 user0.AppendFormat("{0:C}", MoneyAccount[0]);
                 Console.WriteLine(user0.ToString());
             }
             if (MoneyAccount.Length == 2) // If the user has 2 accounts.
             {
-                StringBuilder user0 = new StringBuilder("[1] Payroll account: ");
+                StringBuilder user0 = new StringBuilder("[1] Lönekonto: ");
                 user0.AppendFormat("{0:C}", MoneyAccount[0]);
                 Console.WriteLine(user0.ToString());
-                StringBuilder user00 = new StringBuilder("[2] Share account: ");
+                StringBuilder user00 = new StringBuilder("[2] Investeringssparkonto: ");
                 user00.AppendFormat("{0:C}", MoneyAccount[1]);
                 Console.WriteLine(user00.ToString());
             }
             if (MoneyAccount.Length == 3) // If the user has 3 accounts.
             {
-                StringBuilder user0 = new StringBuilder("[1] Payroll account: ");
+                StringBuilder user0 = new StringBuilder("[1] Lönekonto: ");
                 user0.AppendFormat("{0:C}", MoneyAccount[0]);
                 Console.WriteLine(user0.ToString());
-                StringBuilder user00 = new StringBuilder("[2] Share account: ");
+                StringBuilder user00 = new StringBuilder("[2] Investeringssparkonto: ");
                 user00.AppendFormat("{0:C}", MoneyAccount[1]);
                 Console.WriteLine(user00.ToString());
-                StringBuilder user000 = new StringBuilder("[3] Savings account: ");
+                StringBuilder user000 = new StringBuilder("[3] Sparkonto: ");
                 user000.AppendFormat("{0:C}", MoneyAccount[2]);
                 Console.WriteLine(user000.ToString());
             }
@@ -237,7 +232,7 @@ namespace Bankomat
         }
         public static int Return()
         {
-            Console.WriteLine("\nPress Enter To Return To Menue:");
+            Console.WriteLine("\nKlicka enter för att komma till huvudmenyn:");
             for (int attempt = 0; attempt < 3; attempt++) // Loop taht returns the user to the menu if enter is pressed, if wrong input is typed more then 3 times the user is thrown back out of the bank.
             {
                 try
@@ -248,7 +243,7 @@ namespace Bankomat
                     }
                     else
                     {
-                        Console.WriteLine("Invalid Pick!");
+                        Console.WriteLine("Ogilltigt val!");
                     }
                 }
                 catch (Exception ex)
@@ -258,13 +253,13 @@ namespace Bankomat
                 }
                 if (attempt == 2)
                 {
-                    Console.WriteLine("To many attempts!");
+                    Console.WriteLine("För många försök!");
                     return -2;
                 }
             }
             return -2; // Anny extra exception is captured here.
         }
-        public static (int, string) From(double[] MoneyAccount, int Decider)
+        public static (int, string) From(double[] MoneyAccount, int Decider) // Takes the user input on witch account they want to Transfer or Withdraw from.
         {
             int From1 = 0;
             int error = 0;
@@ -275,8 +270,8 @@ namespace Bankomat
             {
                 try
                 {
-                    if (Decider == 1) { Console.Write("\nTransfer From:"); }
-                    else { Console.Write("\nWithdraw From:"); }
+                    if (Decider == 1) { Console.Write("\nÖverför från:"); }
+                    else { Console.Write("\nTa ut från:"); }
                     From1 = int.Parse(Console.ReadLine());
                     error2 = 0;
                     if (error == 3)
@@ -288,7 +283,7 @@ namespace Bankomat
                 {
                     if (attempt != 2)
                     {
-                        Console.WriteLine("Invalid Account!");
+                        Console.WriteLine("Ogilltig summa!");
                         error++;
                         error2++;
                     }
@@ -300,20 +295,20 @@ namespace Bankomat
                 }
                 else if (attempt == 2)
                 {
-                    Console.WriteLine("To many attempts!");
+                    Console.WriteLine("För många försök!");
                     return (-2, PickSaver[0]);
                 }
                 else
                 {
                     if (error2 < 1)
                     {
-                        Console.WriteLine("Invalid Account!");
+                        Console.WriteLine("Ogilltigt konto!");
                     }
                 }
             }
-            return (-2, PickSaver[0]);
+            return (-2, PickSaver[0]); // Anny extra exception is captured here.
         }
-        public static (int, string) To(double[] MoneyAccount, string[] PickSaver)
+        public static (int, string) To(double[] MoneyAccount, string[] PickSaver) // Takes the user input on witch account they want to Transfer to.
         {
             int From = int.Parse(PickSaver[0]);
             int To = 0;
@@ -324,7 +319,7 @@ namespace Bankomat
             {
                 try
                 {
-                    Console.Write("\nTransfer To:");
+                    Console.Write("\nÖverför till:");
                     To = int.Parse(Console.ReadLine());
                     error2 = 0;
                     if (error == 3)
@@ -336,7 +331,7 @@ namespace Bankomat
                 {
                     if (attempt != 2)
                     {
-                        Console.WriteLine("Invalid Account!");
+                        Console.WriteLine("Ogilltigt konto!");
                         error++;
                         error2++;
                     }
@@ -348,20 +343,20 @@ namespace Bankomat
                 }
                 else if (attempt == 2)
                 {
-                    Console.WriteLine("To many attempts!");
+                    Console.WriteLine("För många försök!");
                     return (-2, PickSaver[1]);
                 }
                 else
                 {
                     if (error2 < 1)
                     {
-                        Console.WriteLine("Invalid Account!");
+                        Console.WriteLine("Ogilltigt konto!");
                     }
                 }
-            }
-            return (-2, PickSaver[1]);
+            } 
+            return (-2, PickSaver[1]); // Anny extra exception is captured here.
         }
-        public static (int, string) Amount(double[] MoneyAccount, string[] PickSaver, int Decider)
+        public static (int, string) Amount(double[] MoneyAccount, string[] PickSaver, int Decider) // Takes the user input on the amount that is getting Transfered or Withdrawn.
         {
             int From = int.Parse(PickSaver[0]);
             if (Decider == 1) { int To = int.Parse(PickSaver[1]); }
@@ -385,7 +380,7 @@ namespace Bankomat
                 {
                     if (attempt != 2)
                     {
-                        Console.WriteLine("Invalid Amount!");
+                        Console.WriteLine("Ogilltig summa!");
                         error++;
                         error2++;
                     }
@@ -417,18 +412,18 @@ namespace Bankomat
                 }
                 if (error2 < 1)
                 {
-                    Console.WriteLine("Invalid Amount!");
+                    Console.WriteLine("Ogilltig summa!");
                 }
                 else if (attempt == 2)
                 {
-                    Console.WriteLine("To many attempts!");
+                    Console.WriteLine("För många försök!");
                     return (-2, PickSaver[2]);
                 }
             }
-            return (-2, PickSaver[2]);
+            return (-2, PickSaver[2]); // Anny extra exception is captured here.
         }
 
-        public static void Message(double[] MoneyAccount, string[] PickSaver, int Decider)
+        public static void Message(double[] MoneyAccount, string[] PickSaver, int Decider) // Writes a message that tells the user what is about to happen based on the users earlier inputs. 
         {
             int From = int.Parse(PickSaver[0]);
             double amount = double.Parse(PickSaver[2]);
@@ -436,20 +431,20 @@ namespace Bankomat
             if (Decider == 1)
             {
                 int To = int.Parse(PickSaver[1]);
-                StringBuilder user0 = new StringBuilder("You Will Transfer ");
+                StringBuilder user0 = new StringBuilder("Du kommer överföra ");
                 user0.AppendFormat("{0:C}", amount);
-                user0.AppendFormat(" To Account {0}", To);
+                user0.AppendFormat(" till {0}", To);
                 Console.WriteLine(user0.ToString());
             }
             else
             {
-                StringBuilder user0 = new StringBuilder("You Will Withdraw ");
+                StringBuilder user0 = new StringBuilder("Du kommer ta ut ");
                 user0.AppendFormat("{0:C}", amount);
-                user0.AppendFormat(" From Account {0}", From);
+                user0.AppendFormat(" från {0}", From);
                 Console.WriteLine(user0.ToString());
             }
         }
-        public static int PinCode(int user)
+        public static int PinCode(int user) // The user needs to enter their pincode to confirm the change. 
         {
             for (int attempt = 0; attempt <= 2; attempt++)
             {
@@ -459,7 +454,7 @@ namespace Bankomat
 
                 try
                 {
-                    Console.WriteLine("Confirm By Entering Your Pin-Code:");
+                    Console.WriteLine("Bekräfta genom att ange din pinkod:");
                     pin = int.Parse(Console.ReadLine());
                     error2 = 0;
                     if (error == 3)
@@ -471,7 +466,7 @@ namespace Bankomat
                 {
                     if (attempt != 2)
                     {
-                        Console.WriteLine("Invalid Format!");
+                        Console.WriteLine("Ogilltigt format!");
                         error++;
                         error2++;
                     }
@@ -480,34 +475,34 @@ namespace Bankomat
                 switch (user)
                 {
                     case 0:
-                        if (pin == 2124) { Console.Clear(); Console.WriteLine("Success!"); return 2; }
+                        if (pin == 2124) { Console.Clear(); Console.WriteLine("Lyckad ändring!"); return 2; }
                         break;
                     case 1:
-                        if (pin == 4452) { Console.Clear(); Console.WriteLine("Success!"); return 2; }
+                        if (pin == 4452) { Console.Clear(); Console.WriteLine("Lyckad ändring!"); return 2; }
                         break;
                     case 2:
-                        if (pin == 9832) { Console.Clear(); Console.WriteLine("Success!"); return 2; }
+                        if (pin == 9832) { Console.Clear(); Console.WriteLine("Lyckad ändring!"); return 2; }
                         break;
                     case 3:
-                        if (pin == 2532) { Console.Clear(); Console.WriteLine("Success!"); return 2; }
+                        if (pin == 2532) { Console.Clear(); Console.WriteLine("Lyckad ändring!"); return 2; }
                         break;
                     case 4:
-                        if (pin == 2435) { Console.Clear(); Console.WriteLine("Success!"); return 2; }
+                        if (pin == 2435) { Console.Clear(); Console.WriteLine("Lyckad ändring!"); return 2; }
                         break;
                 }
                 if (error2 < 1)
                 {
-                    Console.WriteLine("Invalid Account!");
+                    Console.WriteLine("Ogilltig pinkod!");
                 }
                 else if (attempt == 2)
                 {
-                    Console.WriteLine("To many attempts!");
+                    Console.WriteLine("För många försök!");
                     return -2;
                 }
             }
             return -2;
         }
-        public static void UpdateValues(double[] MoneyAccount, string[] PickSaver, int Decider)
+        public static void UpdateValues(double[] MoneyAccount, string[] PickSaver, int Decider) // Updates the values, Decider == 1 is if you Transfered and Decider == 2 is if you Withdrawed.
         {
             int From = int.Parse(PickSaver[0]);
             double amount = double.Parse(PickSaver[2]);
